@@ -2,19 +2,20 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import DoctorCard from './components/DoctorCard';
 import ServiceList from './components/ServiceList';
-import AppointmentForm from './components/AppointmentForm';
 
 const App = () => {
   const [resolvedTeamData, setResolvedTeamData] = useState([]);
   const [medicalServices, setMedicalServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
-  const [appointments, setAppointments] = useState([]);
+  const [serviceError, setServiceError] = useState(null); 
 
-  const API_URL = '/api/awakelab/m5-ep1/equipo.json';
+
+  const DOCTORS_API_URL = '/api/awakelab/m5-ep1/equipo.json';
+  const SERVICES_API_URL = '/api/awakelab/m5-ep1/servicios.json'; // En el servidor se cambio el nombre a servicio.json para generar el error
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(DOCTORS_API_URL);
       if (!response.ok) {
         throw new Error('Error al obtener los datos del equipo médico');
       }
@@ -27,57 +28,61 @@ const App = () => {
       }));
       console.log('Datos resueltos:', resolvedData);
 
-      setResolvedTeamData(resolvedData);
+      setResolvedTeamData(resolvedData); 
     } catch (error) {
       console.error('Error al cargar los datos:', error);
     }
   };
 
+  const fetchServices = async () => {
+    try {
+      const response = await fetch(SERVICES_API_URL);
+      if (!response.ok) {
+        throw new Error('Error al obtener los servicios médicos');
+      }
+      const data = await response.json();
+      setMedicalServices(data); 
+      setServiceError(null); 
+    } catch (error) {
+      console.error('Error al cargar los servicios:', error);
+      setServiceError('Ocurrió un error al cargar los servicios médicos.'); 
+    }
+  };
   useEffect(() => {
-    const initialMedicalServices = ["Urgencias", "Consultas Médicas", "Hospitalización", "Toma de Muestras"];
-    setMedicalServices(initialMedicalServices);
-    fetchDoctors(); 
+    fetchDoctors();
+    fetchServices();
   }, []);
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
   };
 
-  const addAppointment = (newAppointment) => {
-    setAppointments((prevAppointments) => [...prevAppointments, newAppointment]);
-  };
-
-  const specialties = [...new Set(resolvedTeamData.map((doctor) => doctor.especialidad))];
-
   const reloadDoctors = () => {
     fetchDoctors(); 
   };
 
+  const reloadServices = () => {
+    setServiceError(null); 
+    fetchServices(); 
+  };
+
   return (
     <div className="App">
-      <div className="service-list-container">
-        <ServiceList
-          services={medicalServices}
-          onServiceSelect={handleServiceSelect}
-        />
-      </div>
+      {serviceError && (
+        <div className="error-message">
+          <p>{serviceError}</p>
+          <button onClick={reloadServices} className="reload-services-btn">
+            Intentar nuevamente
+          </button>
+        </div>
+      )}
 
-      <AppointmentForm
-        specialties={specialties}
-        doctors={resolvedTeamData}
-        onAppointmentSubmit={addAppointment}
-      />
-
-      {appointments.length > 0 && (
-        <div className="appointments">
-          <h2>Citas Agendadas</h2>
-          <ul>
-            {appointments.map((appointment, index) => (
-              <li key={index}>
-                <strong>Paciente:</strong> {appointment.patientName} | <strong>Doctor:</strong> {appointment.doctor} | <strong>Fecha:</strong> {appointment.appointmentDate}
-              </li>
-            ))}
-          </ul>
+      {!serviceError && (
+        <div className="service-list-container">
+          <ServiceList
+            services={medicalServices}
+            onServiceSelect={handleServiceSelect}
+          />
         </div>
       )}
 

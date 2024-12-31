@@ -7,8 +7,8 @@ const ServiceList = ({ services, onServiceSelect }) => {
       <select onChange={(e) => onServiceSelect(e.target.value)}>
         <option value="">Seleccionar un servicio</option>
         {services.map((service, index) => (
-          <option key={index} value={service}>
-            {service}
+          <option key={index} value={service.id}>
+            {service.nombre}
           </option>
         ))}
       </select>
@@ -17,7 +17,12 @@ const ServiceList = ({ services, onServiceSelect }) => {
 };
 
 ServiceList.propTypes = {
-  services: PropTypes.arrayOf(PropTypes.string).isRequired,
+  services: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      nombre: PropTypes.string.isRequired,
+    })
+  ).isRequired,
   onServiceSelect: PropTypes.func.isRequired,
 };
 

@@ -11,3 +11,30 @@
   grid-gap: 20px;
   grid-auto-rows: minmax(100px, auto);
 }
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  margin: 20px 0;
+}
+
+.reload-services-btn,
+.reload-doctors-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.reload-services-btn:hover,
+.reload-doctors-btn:hover {
+  background-color: #0056b3;
+}
+
+
