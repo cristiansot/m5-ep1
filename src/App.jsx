@@ -8,7 +8,7 @@ const App = () => {
   const [medicalServices, setMedicalServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [serviceError, setServiceError] = useState(null); 
-
+  const [doctorsReloaded, setDoctorsReloaded] = useState(false); 
 
   const DOCTORS_API_URL = '/api/awakelab/m5-ep1/equipo.json';
   const SERVICES_API_URL = '/api/awakelab/m5-ep1/servicios.json'; // En el servidor se cambio el nombre a servicio.json para generar el error
@@ -20,15 +20,11 @@ const App = () => {
         throw new Error('Error al obtener los datos del equipo médico');
       }
       const data = await response.json();
-      console.log('Datos obtenidos:', data);
-
       const resolvedData = data.map((doctor) => ({
         ...doctor,
         imagen: new URL(`./assets/img/${doctor.imagen.split('/').pop()}`, import.meta.url).href,
       }));
-      console.log('Datos resueltos:', resolvedData);
-
-      setResolvedTeamData(resolvedData); 
+      setResolvedTeamData(resolvedData);
     } catch (error) {
       console.error('Error al cargar los datos:', error);
     }
@@ -41,24 +37,31 @@ const App = () => {
         throw new Error('Error al obtener los servicios médicos');
       }
       const data = await response.json();
-      setMedicalServices(data); 
+      setMedicalServices(data);
       setServiceError(null); 
     } catch (error) {
       console.error('Error al cargar los servicios:', error);
       setServiceError('Ocurrió un error al cargar los servicios médicos.'); 
     }
   };
+
   useEffect(() => {
-    fetchDoctors();
-    fetchServices();
+    fetchServices(); 
   }, []);
+
+  useEffect(() => {
+    if (doctorsReloaded) {
+      fetchDoctors();
+      setDoctorsReloaded(false);  
+    }
+  }, [doctorsReloaded]); 
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
   };
 
   const reloadDoctors = () => {
-    fetchDoctors(); 
+    setDoctorsReloaded(true); 
   };
 
   const reloadServices = () => {
