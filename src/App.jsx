@@ -12,31 +12,31 @@ const App = () => {
 
   const API_URL = '/api/awakelab/m5-ep1/equipo.json';
 
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error('Error al obtener los datos del equipo médico');
-        }
-        const data = await response.json();
-        console.log('Datos obtenidos:', data);
-
-        const resolvedData = data.map((doctor) => ({
-          ...doctor,
-          imagen: new URL(`./assets/img/${doctor.imagen.split('/').pop()}`, import.meta.url).href,
-        }));
-        console.log('Datos resueltos:', resolvedData);
-
-        setResolvedTeamData(resolvedData);
-      } catch (error) {
-        console.error('Error al cargar los datos:', error);
+  const fetchDoctors = async () => {
+    try {
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error('Error al obtener los datos del equipo médico');
       }
-    };
+      const data = await response.json();
+      console.log('Datos obtenidos:', data);
 
+      const resolvedData = data.map((doctor) => ({
+        ...doctor,
+        imagen: new URL(`./assets/img/${doctor.imagen.split('/').pop()}`, import.meta.url).href,
+      }));
+      console.log('Datos resueltos:', resolvedData);
+
+      setResolvedTeamData(resolvedData);
+    } catch (error) {
+      console.error('Error al cargar los datos:', error);
+    }
+  };
+
+  useEffect(() => {
     const initialMedicalServices = ["Urgencias", "Consultas Médicas", "Hospitalización", "Toma de Muestras"];
     setMedicalServices(initialMedicalServices);
-    fetchDoctors();
+    fetchDoctors(); 
   }, []);
 
   const handleServiceSelect = (service) => {
@@ -48,6 +48,10 @@ const App = () => {
   };
 
   const specialties = [...new Set(resolvedTeamData.map((doctor) => doctor.especialidad))];
+
+  const reloadDoctors = () => {
+    fetchDoctors(); 
+  };
 
   return (
     <div className="App">
@@ -76,6 +80,10 @@ const App = () => {
           </ul>
         </div>
       )}
+
+      <button onClick={reloadDoctors} className="reload-doctors-btn">
+        Recargar Doctores
+      </button>
 
       <h2>Equipo Médico</h2>
       <div className="doctor-list">
