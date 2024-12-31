@@ -1,25 +1,53 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import DoctorCard from './components/DoctorCard';
 import ServiceList from './components/ServiceList';
 import AppointmentForm from './components/AppointmentForm';
-import teamData from './assets/equipo.json';
-import { AppProvider, useAppContext } from './components/AppContext';
 
 const App = () => {
-  const {
-    resolvedTeamData,
-    setResolvedTeamData,
-    medicalServices,
-    handleServiceSelect,
-    appointments,
-    addAppointment,
-    resolveImagePaths,
-  } = useAppContext();
+  const [resolvedTeamData, setResolvedTeamData] = useState([]);
+  const [medicalServices, setMedicalServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+
+  const API_URL = '/api/awakelab/m5-ep1/equipo.json';
 
   useEffect(() => {
-    setResolvedTeamData(resolveImagePaths(teamData));
-  }, [resolveImagePaths, setResolvedTeamData]);
+    const fetchDoctors = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error('Error al obtener los datos del equipo médico');
+        }
+        const data = await response.json();
+        console.log('Datos obtenidos:', data);
+
+        const resolvedData = data.map((doctor) => ({
+          ...doctor,
+          imagen: new URL(`./assets/img/${doctor.imagen.split('/').pop()}`, import.meta.url).href,
+        }));
+        console.log('Datos resueltos:', resolvedData);
+
+        setResolvedTeamData(resolvedData);
+      } catch (error) {
+        console.error('Error al cargar los datos:', error);
+      }
+    };
+
+    const initialMedicalServices = ["Urgencias", "Consultas Médicas", "Hospitalización", "Toma de Muestras"];
+    setMedicalServices(initialMedicalServices);
+    fetchDoctors();
+  }, []);
+
+  const handleServiceSelect = (service) => {
+    setSelectedService(service);
+  };
+
+  const addAppointment = (newAppointment) => {
+    setAppointments((prevAppointments) => [...prevAppointments, newAppointment]);
+  };
+
+  const specialties = [...new Set(resolvedTeamData.map((doctor) => doctor.especialidad))];
 
   return (
     <div className="App">
@@ -31,7 +59,7 @@ const App = () => {
       </div>
 
       <AppointmentForm
-        specialties={medicalServices}
+        specialties={specialties}
         doctors={resolvedTeamData}
         onAppointmentSubmit={addAppointment}
       />
@@ -50,23 +78,17 @@ const App = () => {
       )}
 
       <h2>Equipo Médico</h2>
-      <React.Profiler id="DoctorList" onRender={(id, phase, actualDuration) => {
-        console.log(`Lista de doctores renderizada en ${actualDuration} ms en la fase ${phase}`);
-      }}>
-        <div className="doctor-list">
-          {resolvedTeamData.map((doctor, index) => (
+      <div className="doctor-list">
+        {resolvedTeamData.length > 0 ? (
+          resolvedTeamData.map((doctor, index) => (
             <DoctorCard key={index} doctor={doctor} />
-          ))}
-        </div>
-      </React.Profiler>
+          ))
+        ) : (
+          <p>No se encontraron datos del equipo médico.</p>
+        )}
+      </div>
     </div>
   );
 };
 
-const AppWithProvider = () => (
-  <AppProvider>
-    <App />
-  </AppProvider>
-);
-
-export default AppWithProvider;
+export default App;

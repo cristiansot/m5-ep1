@@ -1,12 +1,10 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import PropTypes from "prop-types";
 import * as Yup from "yup";
 import '../assets/css/form.css';
 
-const AppointmentForm = ({ doctors, specialties, onAppointmentSubmit }) => {
-  const patientNameRef = useRef(null);
-
+const AppointmentForm = ({ doctors, onAppointmentSubmit }) => {
   const validationSchema = Yup.object({
     patientName: Yup.string()
       .required("El nombre del paciente es obligatorio")
@@ -16,12 +14,6 @@ const AppointmentForm = ({ doctors, specialties, onAppointmentSubmit }) => {
       .required("Debes seleccionar una fecha")
       .min(new Date(), "La fecha no puede ser en el pasado"),
   });
-
-  useEffect(() => {
-    if (patientNameRef.current) {
-      patientNameRef.current.focus();
-    }
-  }, []);
 
   return (
     <div className="formContainer">
@@ -47,7 +39,6 @@ const AppointmentForm = ({ doctors, specialties, onAppointmentSubmit }) => {
                 id="patientName"
                 name="patientName"
                 placeholder="Nombre completo"
-                innerRef={patientNameRef} 
               />
               <ErrorMessage
                 name="patientName"
@@ -94,14 +85,14 @@ const AppointmentForm = ({ doctors, specialties, onAppointmentSubmit }) => {
 };
 
 AppointmentForm.propTypes = {
-  specialties: PropTypes.arrayOf(PropTypes.string).isRequired, 
+  specialties: PropTypes.arrayOf(PropTypes.string).isRequired,
   doctors: PropTypes.arrayOf(
     PropTypes.shape({
-      nombre: PropTypes.string.isRequired, 
+      nombre: PropTypes.string.isRequired,
       especialidad: PropTypes.string.isRequired,
     })
-  ).isRequired, 
-  onAppointmentSubmit: PropTypes.func.isRequired, 
+  ).isRequired,
+  onAppointmentSubmit: PropTypes.func.isRequired,
 };
 
 export default AppointmentForm;

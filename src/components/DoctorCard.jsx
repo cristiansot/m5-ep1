@@ -1,36 +1,15 @@
-import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import withModal from '../hoc/withModal';
-import Modal from './Modal';
 
-const DoctorCard = ({ doctor, isModalOpen, openModal, closeModal }) => {
-  const modalContent = {
-    title: `${doctor.nombre}`,
-    especialidad: `Especialidad: ${doctor.especialidad}`,
-    resumen: `${doctor.resumen}`,
-  };
-
+const DoctorCard = ({ doctor }) => {
   return (
-    <React.Profiler id="DoctorCard" onRender={(id, phase, actualDuration) => {
-      console.log(`Componente ${id} renderizado en ${actualDuration} ms en la fase ${phase}`);
-    }}>
-      <div className="doctor-card">
-        <img
-          src={doctor.imagen}
-          alt={`Foto de ${doctor.nombre}`}
-          className="doctor-image"
-          style={{ height: 400, borderRadius: 30 }}
-        />
-        <div className="doctor-info">
-          <h2>{doctor.nombre}</h2>
-          <button onClick={openModal} style={{ marginTop: 10, padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: 5 }}>
-            Ver detalles
-          </button>
-        </div>
-
-        <Modal isOpen={isModalOpen} content={modalContent} onClose={closeModal} />
+    <div className="doctor-card">
+      <img src={doctor.imagen} alt={`Foto de ${doctor.nombre}`} className="doctor-image" style={{ height: 400, borderRadius: 30 }} />
+      <div className="doctor-info">
+        <h2 className="doctor-name">{doctor.nombre}</h2>
+        <p className="doctor-specialty">Especialidad: {doctor.especialidad}</p>
+        <p className="doctor-experience">Años de experiencia: {doctor.años_experiencia}</p>
       </div>
-    </React.Profiler>
+    </div>
   );
 };
 
@@ -39,16 +18,8 @@ DoctorCard.propTypes = {
     nombre: PropTypes.string.isRequired,
     imagen: PropTypes.string.isRequired,
     especialidad: PropTypes.string.isRequired,
-    resumen: PropTypes.string.isRequired,
+    años_experiencia: PropTypes.number.isRequired,
   }).isRequired,
-  isModalOpen: PropTypes.bool.isRequired,
-  openModal: PropTypes.func.isRequired,
-  closeModal: PropTypes.func.isRequired,
 };
 
-export default withModal(DoctorCard);
-
-
-
-
-
+export default DoctorCard;
